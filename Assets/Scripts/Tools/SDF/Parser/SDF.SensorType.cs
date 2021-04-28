@@ -41,27 +41,21 @@ namespace SDF
 
 	public class Camera : SensorType
 	{
-		protected Pose<double> pose = new Pose<double>(0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-
-		protected string relative_to = string.Empty;
+		protected Pose<double> pose = new Pose<double>();
 
 		public Pose<double> Pose => pose;
 
 		public void ParsePose(in string poseString, in string relativeTo = "")
 		{
-			relative_to = (string.IsNullOrEmpty(relativeTo)) ? "__model__" : relativeTo;
+			pose.relative_to = (string.IsNullOrEmpty(relativeTo)) ? "__model__" : relativeTo;
 
 			if (!string.IsNullOrEmpty(poseString))
 			{
 				// x y z roll pitch yaw
 				var poseInfo = poseString.Split(' ');
 
-				pose.Pos.X = Convert.ToDouble(poseInfo[0]);
-				pose.Pos.Y = Convert.ToDouble(poseInfo[1]);
-				pose.Pos.Z = Convert.ToDouble(poseInfo[2]);
-				pose.Rot.Roll = Convert.ToDouble(poseInfo[3]);
-				pose.Rot.Pitch = Convert.ToDouble(poseInfo[4]);
-				pose.Rot.Yaw = Convert.ToDouble(poseInfo[5]);
+				pose.Pos.Set(poseInfo[0], poseInfo[1], poseInfo[2]);
+				pose.Rot.Set(poseInfo[3], poseInfo[4], poseInfo[5]);
 
 				// Console.WriteLine("Pose {0} {1} {2} {3} {4} {5}",
 				// 	pose.Pos.X, pose.Pos.Y, pose.Pos.Z,
@@ -70,18 +64,16 @@ namespace SDF
 			}
 		}
 
-		public class Clip
+		public struct Clip
 		{
-			public Clip() {}
-
-			public Clip(in double near, in double far)
+			public Clip(in double near = 0.1d, in double far = 100d)
 			{
-				this.near = 0.1f;
-				this.far = 0.1f;
+				this.near = near;
+				this.far = far;
 			}
 
-			public double near = 0.1f;
-			public double far = 100f;
+			public double near;
+			public double far;
 		}
 
 		public class Distortion
@@ -91,7 +83,7 @@ namespace SDF
 			public double k3 = 0;
 			public double p1 = 0;
 			public double p2 = 0;
-			public SDF.Vector2<double> center = new SDF.Vector2<double>(0.0f, 0.0f);
+			public SDF.Vector2<double> center = new SDF.Vector2<double>();
 		}
 
 		public class Lens
@@ -129,13 +121,13 @@ namespace SDF
 		public int image_height = 240;
 		public string image_format = "R8G8B8";
 
-		public Clip clip = new Clip(1, 10);
+		public Clip clip = new Clip();
 
 		public bool save_enabled = false;
 		public string save_path = string.Empty;
 
 		public string depth_camera_output = string.Empty;
-		public Clip depth_camera_clip = new Clip(1, 100);
+		public Clip depth_camera_clip = new Clip();
 
 		public Noise noise = new Noise("gaussian");
 
